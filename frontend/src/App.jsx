@@ -4,17 +4,18 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Register from './pages/Register'        // ← NEW
+import VerifyOTP from './pages/VerifyOTP'      // ← NEW
 import useAuthStore from './store/authStore'
 import { getMe } from './services/authService'
 
-// Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore()
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent 
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent
                         rounded-full animate-spin"></div>
       </div>
     )
@@ -36,7 +37,7 @@ function App() {
           setLoading(false)
         }
       } catch {
-        setLoading(false)     // ← not logged in, stop loading
+        setLoading(false)
       }
     }
     restoreUser()
@@ -46,8 +47,10 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/"           element={<Home />} />
+        <Route path="/login"      element={<Login />} />
+        <Route path="/register"   element={<Register />} />    {/* ← NEW */}
+        <Route path="/verify-otp" element={<VerifyOTP />} />   {/* ← NEW */}
         <Route
           path="/dashboard"
           element={
