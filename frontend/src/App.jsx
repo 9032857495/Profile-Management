@@ -1,13 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Register from './pages/Register'
-import VerifyOTP from './pages/VerifyOTP'
-import useAuthStore from './store/authStore'
-import { getMe } from './services/authService'
+import Navbar          from './components/Navbar'
+import Home            from './pages/Home'
+import Login           from './pages/Login'
+import Dashboard       from './pages/Dashboard'
+import Register        from './pages/Register'
+import VerifyOTP       from './pages/VerifyOTP'
+import ProfileBuilder  from './pages/ProfileBuilder'
+import ProfileComplete from './pages/ProfileComplete'
+import Rankings        from './pages/Rankings'
+import useAuthStore    from './store/authStore'
+import { getMe }       from './services/authService'
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -52,6 +55,7 @@ function App() {
           <Route path="/login"      element={<Login />} />
           <Route path="/register"   element={<Register />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
+
           <Route
             path="/dashboard"
             element={
@@ -60,6 +64,40 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/profile/build"
+            element={
+              <ProtectedRoute>
+                <ProfileBuilder />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile/complete"
+            element={
+              <ProtectedRoute>
+                <ProfileComplete />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/rankings"
+            element={
+              <ProtectedRoute>
+                <Rankings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redirect old route just in case */}
+          <Route path="/profile-builder" element={<Navigate to="/profile/build" />} />
+
+          {/* 404 fallback */}
+          <Route path="*" element={<Navigate to="/" />} />
+
         </Routes>
       </main>
     </div>
