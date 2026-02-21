@@ -34,66 +34,130 @@ const Login = () => {
   }
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)' }}
-         className="flex items-center justify-center bg-gray-50">
+    <div
+      style={{ minHeight: 'calc(100vh - 57px)' }}
+      className="flex items-center justify-center bg-gradient-to-br
+                 from-slate-50 via-white to-blue-50 px-4 py-12"
+    >
+      <div className="w-full max-w-md">
 
-      <div className="bg-white p-10 rounded-2xl shadow-md w-full max-w-md text-center">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
-        <p className="text-gray-500 mb-6">Sign in to continue</p>
-
-        {/* Email + Password Form */}
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4 text-left">
-          <div>
-            <label className="text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email" name="email" required
-              value={form.email} onChange={handleChange}
-              placeholder="john@example.com"
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password" name="password" required
-              value={form.password} onChange={handleChange}
-              placeholder="Your password"
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <button
-            type="submit" disabled={submitting}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
-          >
-            {submitting ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="relative flex items-center justify-center my-5">
-          <div className="border-t w-full border-gray-200"></div>
-          <span className="px-3 bg-white text-gray-400 text-sm absolute">or</span>
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+            Welcome back
+          </h2>
+          <p className="text-gray-400 text-base mt-3">
+            Sign in to continue to ProfileManager
+          </p>
         </div>
 
-        {/* Google Auth */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-3">
-            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent
-                            rounded-full animate-spin"></div>
+        {/* Card */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-6 sm:px-10 py-10">
+
+          {/* Error */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-500 text-sm
+                            rounded-xl px-4 py-3.5 mb-8 text-center font-medium">
+              ⚠️ {error}
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+            {/* Email */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-gray-700 tracking-wide">
+                Email address
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                placeholder="john@example.com"
+                className="w-full px-5 py-4 border border-gray-200 rounded-xl
+                           text-base text-gray-900 placeholder-gray-300 bg-gray-50
+                           focus:outline-none focus:ring-2 focus:ring-blue-500
+                           focus:border-transparent hover:border-gray-300 transition"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-gray-700 tracking-wide">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                required
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className="w-full px-5 py-4 border border-gray-200 rounded-xl
+                           text-base text-gray-900 placeholder-gray-300 bg-gray-50
+                           focus:outline-none focus:ring-2 focus:ring-blue-500
+                           focus:border-transparent hover:border-gray-300 transition"
+              />
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold
+                         text-base hover:bg-blue-700 active:scale-95 transition-all
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         shadow-lg shadow-blue-100 mt-1"
+            >
+              {submitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent
+                                   rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                'Sign In →'
+              )}
+            </button>
+
+          </form>
+
+          {/* Divider */}
+          <div className="relative flex items-center my-8">
+            <div className="flex-1 border-t border-gray-200" />
+            <span className="px-4 text-xs text-gray-400 font-semibold uppercase tracking-widest">
+              or
+            </span>
+            <div className="flex-1 border-t border-gray-200" />
           </div>
-        ) : (
-          <GoogleAuthButton />
-        )}
 
-        <p className="text-gray-400 text-sm mt-6">
+          {/* Google Auth */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent
+                              rounded-full animate-spin" />
+            </div>
+          ) : (
+            <GoogleAuthButton />
+          )}
+
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-base text-gray-400 mt-8">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline">Sign Up</Link>
+          <Link
+            to="/register"
+            className="text-blue-600 font-bold hover:underline"
+          >
+            Create one →
+          </Link>
         </p>
-      </div>
 
+      </div>
     </div>
   )
 }
