@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom'
+import GoogleAuthButton from '../components/auth/GoogleAuthButton'
+import useAuthStore from '../store/authStore'
 
 const Login = () => {
+  const { isLoading } = useAuthStore()
+
   return (
     <div style={{ minHeight: "calc(100vh - 64px)" }}
          className="flex items-center justify-center bg-gray-50">
@@ -9,18 +13,14 @@ const Login = () => {
         <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
         <p className="text-gray-500 mb-8">Sign in to continue</p>
 
-        {/* Google Sign In Button */}
-        <button
-          className="w-full flex items-center justify-center gap-3 border border-gray-300
-                     rounded-lg px-4 py-3 hover:bg-gray-50 transition font-medium text-gray-700 cursor-pointer"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          Continue with Google
-        </button>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-3">
+            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent 
+                            rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <GoogleAuthButton />
+        )}
 
         <p className="text-gray-400 text-sm mt-6">
           Don't have an account?{' '}
