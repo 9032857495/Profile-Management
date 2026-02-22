@@ -6,6 +6,8 @@ import connectDB    from './config/db.js'
 import authRoutes    from './routes/authRoutes.js'
 import profileRoutes from './routes/profileRoutes.js'
 import rankingRoutes from './routes/rankingRoutes.js'  // ← NEW
+import adminRoutes from './routes/adminRoutes.js'
+
 
 dotenv.config()
 
@@ -23,6 +25,8 @@ app.use(cookieParser())
 app.use('/api/auth',     authRoutes)
 app.use('/api/profile',  profileRoutes)
 app.use('/api/rankings', rankingRoutes)                // ← NEW
+app.use('/api/admin', adminRoutes)
+
 
 app.get('/', (req, res) => {
   res.send('🚀 Profile Management API is running')

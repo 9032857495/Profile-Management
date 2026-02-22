@@ -11,6 +11,8 @@ import ProfileComplete from './pages/ProfileComplete'
 import Rankings        from './pages/Rankings'
 import useAuthStore    from './store/authStore'
 import { getMe }       from './services/authService'
+import AdminDashboard from './pages/AdminDashboard'
+
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -91,6 +93,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* Redirect old route just in case */}
           <Route path="/profile-builder" element={<Navigate to="/profile/build" />} />

@@ -51,7 +51,7 @@ const Navbar = () => {
               {/* Divider */}
               <div className="w-px h-5 bg-gray-200" />
 
-              {/* Dashboard Link */}
+              {/* Dashboard */}
               <Link
                 to="/dashboard"
                 className="text-gray-600 text-sm font-medium hover:text-blue-600 transition"
@@ -60,15 +60,50 @@ const Navbar = () => {
               </Link>
 
               {/* Divider */}
-              <div className="w-px h-5 bg-gray-200" />
+              {/* <div className="w-px h-5 bg-gray-200" /> */}
 
-              {/* ✅ Rankings Link — NEW */}
-              <Link
+              {/* Rankings */}
+              {/* <Link
                 to="/rankings"
                 className="text-gray-600 text-sm font-medium hover:text-purple-600 transition"
               >
                 Rankings
-              </Link>
+              </Link> */}
+
+              {/* Divider */}
+              {/* <div className="w-px h-5 bg-gray-200" /> */}
+
+              {/* Jobs */}
+              {/* <Link
+                to="/jobs"
+                className="text-gray-600 text-sm font-medium hover:text-green-600 transition"
+              >
+                Jobs
+              </Link> */}
+
+              {/* Divider */}
+              {/* <div className="w-px h-5 bg-gray-200" /> */}
+
+              {/* Learning Paths */}
+              {/* <Link
+                to="/learning-paths"
+                className="text-gray-600 text-sm font-medium hover:text-pink-600 transition"
+              >
+                Learning
+              </Link> */}
+
+              {/* Admin (only for admins) */}
+              {user?.role === 'admin' && (
+                <>
+                  <div className="w-px h-5 bg-gray-200" />
+                  <Link
+                    to="/admin"
+                    className="text-gray-600 text-sm font-medium hover:text-slate-800 transition"
+                  >
+                    Admin
+                  </Link>
+                </>
+              )}
 
               {/* Divider */}
               <div className="w-px h-5 bg-gray-200" />
@@ -150,14 +185,39 @@ const Navbar = () => {
                 Dashboard
               </Link>
 
-              {/* ✅ Rankings Link — NEW */}
-              <Link
+              {/* <Link
                 to="/rankings"
                 onClick={() => setMenuOpen(false)}
                 className="text-gray-700 text-sm font-medium hover:text-purple-600 transition"
               >
                 Rankings 🏆
-              </Link>
+              </Link> */}
+
+              {/* <Link
+                to="/jobs"
+                onClick={() => setMenuOpen(false)}
+                className="text-gray-700 text-sm font-medium hover:text-green-600 transition"
+              >
+                Jobs 🎯
+              </Link> */}
+
+              {/* <Link
+                to="/learning-paths"
+                onClick={() => setMenuOpen(false)}
+                className="text-gray-700 text-sm font-medium hover:text-pink-600 transition"
+              >
+                Learning 🛤️
+              </Link> */}
+
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 text-sm font-medium hover:text-slate-800 transition"
+                >
+                  Admin 🛡️
+                </Link>
+              )}
 
               <button
                 onClick={handleLogout}
