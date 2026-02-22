@@ -266,16 +266,16 @@ const Dashboard = () => {
             //   border:   'border-gray-200',
             //   disabled: true,
             // },
-            {
-              icon:     '⚙️',
-              title:    'Account Settings',
-              desc:     'Manage your password and preferences.',
-              label:    'Coming Soon',
-              iconBg:   'bg-slate-100',
-              cardBg:   'bg-white',
-              border:   'border-gray-200',
-              disabled: true,
-            },
+            // {
+            //   icon:     '⚙️',
+            //   title:    'Account Settings',
+            //   desc:     'Manage your password and preferences.',
+            //   label:    'Coming Soon',
+            //   iconBg:   'bg-slate-100',
+            //   cardBg:   'bg-white',
+            //   border:   'border-gray-200',
+            //   disabled: true,
+            // },
           ].map((card) => (
             <div
               key={card.title}
