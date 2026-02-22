@@ -10,9 +10,10 @@ import ProfileBuilder  from './pages/ProfileBuilder'
 import ProfileComplete from './pages/ProfileComplete'
 import Rankings        from './pages/Rankings'
 import Jobs            from './pages/Jobs'
+import LearningPaths   from './pages/LearningPaths'
+import AdminDashboard  from './pages/AdminDashboard'
 import useAuthStore    from './store/authStore'
 import { getMe }       from './services/authService'
-import LearningPaths from './pages/LearningPaths'
 
 
 const ProtectedRoute = ({ children }) => {
@@ -77,18 +78,24 @@ function App() {
             <ProtectedRoute><Rankings /></ProtectedRoute>
           } />
 
-          {/* ✅ Jobs — Protected */}
-          <Route path="/jobs" element={
-            <ProtectedRoute><Jobs /></ProtectedRoute>
-          } />
+{/* Jobs */}
+<Route path="/jobs" element={
+  <ProtectedRoute><Jobs /></ProtectedRoute>
+} />
 
-          <Route path="/learning-paths" element={
-            <ProtectedRoute><LearningPaths /></ProtectedRoute>
-          } />
+{/* Learning Paths */}
+<Route path="/learning-paths" element={
+  <ProtectedRoute><LearningPaths /></ProtectedRoute>
+} />
 
-          {/* ── Redirects ── */}
-          <Route path="/profile-builder" element={<Navigate to="/profile/build" />} />
-          <Route path="*"               element={<Navigate to="/" />} />
+{/* Admin Panel */}
+<Route path="/admin" element={
+  <ProtectedRoute><AdminDashboard /></ProtectedRoute>
+} />
+
+{/* Redirects */}
+<Route path="/profile-builder" element={<Navigate to="/profile/build" />} />
+<Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
     </div>
