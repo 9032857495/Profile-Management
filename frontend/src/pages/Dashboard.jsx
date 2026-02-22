@@ -233,25 +233,29 @@ const Dashboard = () => {
   action:   () => navigate('/rankings'),  // ← added
 },
             {
-              icon:     '🎯',
-              title:    'Job Recommendations',
-              desc:     'Browse jobs matched to your skill profile.',
-              label:    'Coming Soon',
-              iconBg:   'bg-green-100',
-              cardBg:   'bg-white',
-              border:   'border-gray-200',
-              disabled: true,
-            },
+  icon:     '🎯',
+  title:    'Job Recommendations',
+  desc:     'Browse AI-matched jobs based on your skill profile.',
+  label:    'View Jobs →',           // ← changed
+  iconBg:   'bg-green-100',
+  cardBg:   'bg-white hover:bg-green-50',   // ← changed
+  border:   'border-green-200 hover:border-green-400', // ← changed
+  disabled: false,                   // ← changed
+  action:   () => navigate('/jobs'), // ← added
+},
+
             {
-              icon:     '🛤️',
-              title:    'Learning Paths',
-              desc:     'Curated roadmaps to bridge your skill gaps.',
-              label:    'Coming Soon',
-              iconBg:   'bg-pink-100',
-              cardBg:   'bg-white',
-              border:   'border-gray-200',
-              disabled: true,
-            },
+  icon:     '🛤️',
+  title:    'Learning Paths',
+  desc:     'AI-generated roadmaps to bridge your skill gaps.',
+  label:    'View Paths →',                    // ← changed
+  iconBg:   'bg-pink-100',
+  cardBg:   'bg-white hover:bg-pink-50',       // ← changed
+  border:   'border-pink-200 hover:border-pink-400', // ← changed
+  disabled: false,                             // ← changed
+  action:   () => navigate('/learning-paths'), // ← added
+},
+
             // {
             //   icon:     '🏆',
             //   title:    'College Rankings',

@@ -9,8 +9,11 @@ import VerifyOTP       from './pages/VerifyOTP'
 import ProfileBuilder  from './pages/ProfileBuilder'
 import ProfileComplete from './pages/ProfileComplete'
 import Rankings        from './pages/Rankings'
+import Jobs            from './pages/Jobs'
 import useAuthStore    from './store/authStore'
 import { getMe }       from './services/authService'
+import LearningPaths from './pages/LearningPaths'
+
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -51,53 +54,41 @@ function App() {
       <Navbar />
       <main className="flex-1 w-full">
         <Routes>
+          {/* ── Public Routes ── */}
           <Route path="/"           element={<Home />} />
           <Route path="/login"      element={<Login />} />
           <Route path="/register"   element={<Register />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          {/* ── Protected Routes ── */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          } />
 
-          <Route
-            path="/profile/build"
-            element={
-              <ProtectedRoute>
-                <ProfileBuilder />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/profile/build" element={
+            <ProtectedRoute><ProfileBuilder /></ProtectedRoute>
+          } />
 
-          <Route
-            path="/profile/complete"
-            element={
-              <ProtectedRoute>
-                <ProfileComplete />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/profile/complete" element={
+            <ProtectedRoute><ProfileComplete /></ProtectedRoute>
+          } />
 
-          <Route
-            path="/rankings"
-            element={
-              <ProtectedRoute>
-                <Rankings />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/rankings" element={
+            <ProtectedRoute><Rankings /></ProtectedRoute>
+          } />
 
-          {/* Redirect old route just in case */}
+          {/* ✅ Jobs — Protected */}
+          <Route path="/jobs" element={
+            <ProtectedRoute><Jobs /></ProtectedRoute>
+          } />
+
+          <Route path="/learning-paths" element={
+            <ProtectedRoute><LearningPaths /></ProtectedRoute>
+          } />
+
+          {/* ── Redirects ── */}
           <Route path="/profile-builder" element={<Navigate to="/profile/build" />} />
-
-          {/* 404 fallback */}
-          <Route path="*" element={<Navigate to="/" />} />
-
+          <Route path="*"               element={<Navigate to="/" />} />
         </Routes>
       </main>
     </div>
