@@ -1,8 +1,14 @@
-import axios from 'axios'
+import axios from "axios"
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? "https://profile-manager-api.onrender.com"
+    : "http://localhost:5000")
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,        // sends cookies automatically
+  baseURL: API_URL,
+  withCredentials: true,
 })
 
 export default axiosInstance
