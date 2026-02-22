@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GoogleAuthButton from '../components/auth/GoogleAuthButton'
 import useAuthStore from '../store/authStore'
-import axios from 'axios'
+// import axios from 'axios'
+import axiosInstance from '../utils/axiosInstance'
 
 const Login = () => {
   const { isLoading, setUser } = useAuthStore()
@@ -15,23 +16,20 @@ const Login = () => {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setError('')
-    try {
-      const res = await axios.post(
-        'http://localhost:5000/api/auth/login',
-        form,
-        { withCredentials: true }
-      )
-      setUser(res.data.user)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong.')
-    } finally {
-      setSubmitting(false)
-    }
+  e.preventDefault()
+  setSubmitting(true)
+  setError('')
+
+  try {
+    const res = await axiosInstance.post('/api/auth/login', form)
+    setUser(res.data.user)
+    navigate('/dashboard')
+  } catch (err) {
+    setError(err.response?.data?.message || 'Something went wrong.')
+  } finally {
+    setSubmitting(false)
   }
+}
 
   return (
     <div

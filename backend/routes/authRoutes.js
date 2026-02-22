@@ -8,6 +8,20 @@ import { googleAuth } from "../controllers/authController.js";
 
 const router = express.Router();
 
+/*
+|--------------------------------------------------------------------------
+| ✅ CONSISTENT COOKIE OPTIONS (VERY IMPORTANT)
+|--------------------------------------------------------------------------
+| Must match Google login cookie config.
+| Required for Vercel (frontend) + Render (backend).
+*/
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,          // Required for HTTPS (Render)
+  sameSite: "none",      // Required for cross-origin cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
+
 // ─────────────────────────────────────────
 // GOOGLE AUTH — POST
 // ─────────────────────────────────────────
@@ -18,10 +32,13 @@ router.post("/google", googleAuth);
 // ─────────────────────────────────────────
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
+
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already registered. Please login." });
+      return res
+        .status(400)
+        .json({ message: "Email already registered. Please login." });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -35,6 +52,7 @@ router.post("/register", async (req, res) => {
     );
 
     await sendOTP(email, otp);
+
     res.status(200).json({ message: "OTP sent to your email!" });
   } catch (err) {
     console.error(err);
@@ -47,17 +65,26 @@ router.post("/register", async (req, res) => {
 // ─────────────────────────────────────────
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
+
   try {
     const tempUser = await TempUser.findOne({ email });
 
     if (!tempUser) {
-      return res.status(400).json({ message: "OTP expired or not found. Please register again." });
+      return res
+        .status(400)
+        .json({ message: "OTP expired or not found. Please register again." });
     }
+
     if (tempUser.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP. Please try again." });
+      return res
+        .status(400)
+        .json({ message: "Invalid OTP. Please try again." });
     }
+
     if (tempUser.otpExpiry < new Date()) {
-      return res.status(400).json({ message: "OTP expired. Please register again." });
+      return res
+        .status(400)
+        .json({ message: "OTP expired. Please register again." });
     }
 
     const newUser = await User.create({
@@ -70,13 +97,14 @@ router.post("/verify-otp", async (req, res) => {
 
     await TempUser.deleteOne({ email });
 
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // ✅ Use consistent cookie options
+    res.cookie("token", token, cookieOptions);
 
     res.status(201).json({
       message: "Account created successfully!",
@@ -86,7 +114,7 @@ router.post("/verify-otp", async (req, res) => {
         email: newUser.email,
         avatar: newUser.avatar,
         role: newUser.role,
-      }
+      },
     });
   } catch (err) {
     console.error(err);
@@ -99,28 +127,38 @@ router.post("/verify-otp", async (req, res) => {
 // ─────────────────────────────────────────
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "No account found. Please register first." });
+      return res
+        .status(400)
+        .json({ message: "No account found. Please register first." });
     }
+
     if (user.authProvider === "google") {
-      return res.status(400).json({ message: "This email is registered with Google. Please use Google Login." });
+      return res.status(400).json({
+        message:
+          "This email is registered with Google. Please use Google Login.",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect password. Please try again." });
+      return res
+        .status(400)
+        .json({ message: "Incorrect password. Please try again." });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // ✅ Use consistent cookie options
+    res.cookie("token", token, cookieOptions);
 
     res.status(200).json({
       message: "Login successful!",
@@ -130,7 +168,7 @@ router.post("/login", async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         role: user.role,
-      }
+      },
     });
   } catch (err) {
     console.error(err);
@@ -139,7 +177,7 @@ router.post("/login", async (req, res) => {
 });
 
 // ─────────────────────────────────────────
-// GET ME — Restore session on refresh
+// GET ME — Restore session
 // ─────────────────────────────────────────
 router.get("/me", async (req, res) => {
   try {
@@ -148,6 +186,7 @@ router.get("/me", async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select("-password");
+
     if (!user) return res.status(401).json({ success: false });
 
     res.status(200).json({ success: true, user });
@@ -157,15 +196,19 @@ router.get("/me", async (req, res) => {
 });
 
 // ─────────────────────────────────────────
-// LOGOUT — Clear cookie
+// LOGOUT — Clear cookie properly
 // ─────────────────────────────────────────
 router.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
   });
-  res.status(200).json({ success: true, message: "Logged out successfully" });
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 });
 
 export default router;
