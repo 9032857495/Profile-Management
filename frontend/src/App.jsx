@@ -14,8 +14,6 @@ import LearningPaths   from './pages/LearningPaths'
 import AdminDashboard  from './pages/AdminDashboard'
 import useAuthStore    from './store/authStore'
 import { getMe }       from './services/authService'
-import AccountSettings from './pages/AccountSettings'
-
 
 
 const ProtectedRoute = ({ children }) => {
@@ -94,16 +92,6 @@ function App() {
 <Route path="/admin" element={
   <ProtectedRoute><AdminDashboard /></ProtectedRoute>
 } />
-
-    <Route
-      path="/account"
-      element={
-        <ProtectedRoute>
-          <AccountSettings />
-        </ProtectedRoute>
-      }
-    />
-
 
 {/* Redirects */}
 <Route path="/profile-builder" element={<Navigate to="/profile/build" />} />
