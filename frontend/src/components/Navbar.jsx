@@ -59,6 +59,20 @@ const Navbar = () => {
                 Dashboard
               </Link>
 
+              {/* Divider */}
+              <div className="w-px h-5 bg-gray-200" />
+
+              {/* ✅ Rankings Link — NEW */}
+              <Link
+                to="/rankings"
+                className="text-gray-600 text-sm font-medium hover:text-purple-600 transition"
+              >
+                Rankings
+              </Link>
+
+              {/* Divider */}
+              <div className="w-px h-5 bg-gray-200" />
+
               {/* Logout */}
               <button
                 onClick={handleLogout}
@@ -134,6 +148,15 @@ const Navbar = () => {
                 className="text-gray-700 text-sm font-medium hover:text-blue-600 transition"
               >
                 Dashboard
+              </Link>
+
+              {/* ✅ Rankings Link — NEW */}
+              <Link
+                to="/rankings"
+                onClick={() => setMenuOpen(false)}
+                className="text-gray-700 text-sm font-medium hover:text-purple-600 transition"
+              >
+                Rankings 🏆
               </Link>
 
               <button
