@@ -22,14 +22,11 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
+  origin: [
+    "http://localhost:5173",
+    "https://profile-management-five.vercel.app"
+  ],
+  credentials: true
 }));
 
 app.use(express.json())
