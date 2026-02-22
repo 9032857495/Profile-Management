@@ -4,17 +4,17 @@ import bcrypt from "bcryptjs";
 import sendOTP from "../utils/sendOTP.js";
 import TempUser from "../models/TempUser.js";
 import User from "../models/User.js";
-import { googleAuth } from "../controllers/authController.js";
+import { googleAuth, changePassword } from "../controllers/authController.js";
 
 const router = express.Router();
 
 // ─────────────────────────────────────────
-// GOOGLE AUTH — POST
+// GOOGLE AUTH — POST /auth/google
 // ─────────────────────────────────────────
 router.post("/google", googleAuth);
 
 // ─────────────────────────────────────────
-// REGISTER — Step 1: Send OTP
+// REGISTER — Step 1: Send OTP POST /auth/register
 // ─────────────────────────────────────────
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
@@ -26,7 +26,7 @@ router.post("/register", async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12); // salt 12
 
     await TempUser.findOneAndUpdate(
       { email },
@@ -43,7 +43,7 @@ router.post("/register", async (req, res) => {
 });
 
 // ─────────────────────────────────────────
-// VERIFY OTP — Step 2: Create Account
+// VERIFY OTP — Step 2: Create Account POST /auth/verify-otp
 // ─────────────────────────────────────────
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
@@ -70,11 +70,15 @@ router.post("/verify-otp", async (req, res) => {
 
     await TempUser.deleteOne({ email });
 
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "7d" }
+    );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -85,7 +89,7 @@ router.post("/verify-otp", async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         avatar: newUser.avatar,
-        role: newUser.role,
+        role: newUser.role || "user",
       }
     });
   } catch (err) {
@@ -95,7 +99,7 @@ router.post("/verify-otp", async (req, res) => {
 });
 
 // ─────────────────────────────────────────
-// LOGIN — Email + Password
+// LOGIN — POST /auth/login
 // ─────────────────────────────────────────
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -114,11 +118,15 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Incorrect password. Please try again." });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: user._id, email: user.email }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "7d" }
+    );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -129,7 +137,7 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-        role: user.role,
+        role: user.role || "user",
       }
     });
   } catch (err) {
@@ -139,7 +147,7 @@ router.post("/login", async (req, res) => {
 });
 
 // ─────────────────────────────────────────
-// GET ME — Restore session on refresh
+// GET ME — GET /auth/me
 // ─────────────────────────────────────────
 router.get("/me", async (req, res) => {
   try {
@@ -150,20 +158,34 @@ router.get("/me", async (req, res) => {
     const user = await User.findById(decoded.id).select("-password");
     if (!user) return res.status(401).json({ success: false });
 
-    res.status(200).json({ success: true, user });
+    res.status(200).json({ 
+      success: true, 
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role || "user",
+      }
+    });
   } catch (err) {
     res.status(401).json({ success: false });
   }
 });
 
 // ─────────────────────────────────────────
-// LOGOUT — Clear cookie
+// CHANGE PASSWORD — POST /auth/change-password (SINGLE ROUTE)
+// ─────────────────────────────────────────
+router.post("/change-password", changePassword);
+
+// ─────────────────────────────────────────
+// LOGOUT — POST /auth/logout
 // ─────────────────────────────────────────
 router.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
   });
   res.status(200).json({ success: true, message: "Logged out successfully" });
 });

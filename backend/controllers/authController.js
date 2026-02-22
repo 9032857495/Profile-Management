@@ -1,71 +1,138 @@
-import { OAuth2Client } from 'google-auth-library'
-import User from '../models/User.js'
-import { generateToken } from '../utils/generateToken.js'
+import { OAuth2Client } from 'google-auth-library';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// @route POST /api/auth/google
+// ─────────────────────────────────────────
+// GOOGLE AUTH — Verify & Login/Create User
+// ─────────────────────────────────────────
 export const googleAuth = async (req, res) => {
-  const { credential } = req.body
+  const { idToken } = req.body;
+  
+  if (!idToken) {
+    return res.status(400).json({ message: "Google token required" });
+  }
 
   try {
-    // Fetch user info from Google using access token
-    const response = await fetch(
-      `https://www.googleapis.com/oauth2/v3/userinfo`,
-      { headers: { Authorization: `Bearer ${credential}` } }
-    )
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-    const profile = await response.json()
-    const { name, email, picture } = profile
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub: googleId } = payload;
 
-    if (!email) {
-      return res.status(400).json({ message: 'Failed to get user info from Google' })
-    }
-
-    let user = await User.findOne({ email })
+    let user = await User.findOne({ 
+      $or: [{ email }, { googleId }] 
+    });
 
     if (!user) {
       user = await User.create({
         name,
         email,
         avatar: picture,
-        authProvider: 'google',
+        googleId,
+        authProvider: "google",
         isVerified: true,
-      })
+      });
+    } else if (user.authProvider === "local") {
+      return res.status(400).json({ 
+        message: "Email registered with password. Use email/password login." 
+      });
     }
 
-    const token = generateToken(user._id)
+    const token = jwt.sign(
+      { id: user._id, email: user.email }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "7d" }
+    );
 
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
+    });
 
     res.status(200).json({
-      success: true,
+      message: "Google login successful!",
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-        role: user.role,
-      },
-    })
-  } catch (error) {
-    console.error('Google Auth Error:', error)
-    res.status(401).json({ message: 'Google authentication failed' })
+        role: user.role || "user",
+      }
+    });
+  } catch (err) {
+    console.error("Google Auth error:", err);
+    res.status(401).json({ message: "Invalid Google token" });
   }
-}
+};
 
-// @route GET /api/auth/me
-export const getMe = async (req, res) => {
-  res.status(200).json({ success: true, user: req.user })
-}
+// ─────────────────────────────────────────
+// CHANGE PASSWORD — Local accounts only
+// ─────────────────────────────────────────
+export const changePassword = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
 
-// @route POST /api/auth/logout
-export const logout = async (req, res) => {
-  res.clearCookie('token')
-  res.status(200).json({ success: true, message: 'Logged out successfully' })
-}
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User not found' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current and new password are required',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long',
+      });
+    }
+
+    if (user.authProvider === 'google' || !user.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password change only for email/password accounts',
+      });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password incorrect',
+      });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 12);
+    user.password = hashed;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password updated successfully',
+    });
+  } catch (err) {
+    console.error('Change Password Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to change password',
+    });
+  }
+};

@@ -14,3 +14,9 @@ export const logout = async () => {
   const response = await axiosInstance.post('/api/auth/logout')
   return response.data
 }
+
+// ✅ NEW
+export const changePassword = async (payload) => {
+  const response = await axiosInstance.post('/api/auth/change-password', payload)
+  return response.data
+}
