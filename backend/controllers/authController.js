@@ -37,11 +37,11 @@ export const googleAuth = async (req, res) => {
     const token = generateToken(user._id)
 
     res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
+  httpOnly: true,
+  secure: true,           // MUST be true on Render HTTPS
+  sameSite: 'none',        // MUST be none for cross-domain cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+})
 
     res.status(200).json({
       success: true,
@@ -66,6 +66,10 @@ export const getMe = async (req, res) => {
 
 // @route POST /api/auth/logout
 export const logout = async (req, res) => {
-  res.clearCookie('token')
-  res.status(200).json({ success: true, message: 'Logged out successfully' })
+res.clearCookie('token', {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none'
+})
+res.status(200).json({ success: true, message: 'Logged out successfully' })
 }
